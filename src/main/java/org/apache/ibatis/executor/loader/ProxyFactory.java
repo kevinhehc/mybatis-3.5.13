@@ -24,6 +24,7 @@ import org.apache.ibatis.session.Configuration;
 /**
  * @author Eduardo Macarron
  */
+// 延迟加载代理工厂
 public interface ProxyFactory {
 
   default void setProperties(Properties properties) {

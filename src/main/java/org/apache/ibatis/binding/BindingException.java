@@ -20,6 +20,10 @@ import org.apache.ibatis.exceptions.PersistenceException;
 /**
  * @author Clinton Begin
  */
+// 抛这个异常的情况
+// 1: 当Map中查不到对应的key时
+// 2: 当重复添加映射时
+// 3: 当绑定Mapper中某个方法出错
 public class BindingException extends PersistenceException {
 
   private static final long serialVersionUID = 4300802238789381562L;

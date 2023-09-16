@@ -34,6 +34,7 @@ import org.apache.ibatis.transaction.Transaction;
 /**
  * @author Clinton Begin
  */
+// 简单执行器
 public class SimpleExecutor extends BaseExecutor {
 
   public SimpleExecutor(Configuration configuration, Transaction transaction) {
@@ -45,8 +46,11 @@ public class SimpleExecutor extends BaseExecutor {
     Statement stmt = null;
     try {
       Configuration configuration = ms.getConfiguration();
+      // 新建一个StatementHandler
+      // 这里看到ResultHandler传入的是null
       StatementHandler handler = configuration.newStatementHandler(this, ms, parameter, RowBounds.DEFAULT, null, null);
       stmt = prepareStatement(handler, ms.getStatementLog());
+      // 准备语句
       return handler.update(stmt);
     } finally {
       closeStatement(stmt);
@@ -59,9 +63,13 @@ public class SimpleExecutor extends BaseExecutor {
     Statement stmt = null;
     try {
       Configuration configuration = ms.getConfiguration();
+      // 新建一个StatementHandler
+      // 这里看到ResultHandler传入了
       StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, resultHandler,
           boundSql);
+      // 准备语句
       stmt = prepareStatement(handler, ms.getStatementLog());
+      // StatementHandler.query
       return handler.query(stmt, resultHandler);
     } finally {
       closeStatement(stmt);
@@ -81,13 +89,16 @@ public class SimpleExecutor extends BaseExecutor {
 
   @Override
   public List<BatchResult> doFlushStatements(boolean isRollback) {
+    // doFlushStatements只是给batch用的，所以这里返回空
     return Collections.emptyList();
   }
 
   private Statement prepareStatement(StatementHandler handler, Log statementLog) throws SQLException {
     Statement stmt;
     Connection connection = getConnection(statementLog);
+    // 调用StatementHandler.prepare
     stmt = handler.prepare(connection, transaction.getTimeout());
+    // 调用StatementHandler.parameterize
     handler.parameterize(stmt);
     return stmt;
   }

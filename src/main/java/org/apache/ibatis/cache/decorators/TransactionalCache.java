@@ -35,17 +35,22 @@ import org.apache.ibatis.logging.LogFactory;
  * @author Clinton Begin
  * @author Eduardo Macarron
  */
+// 事务缓存
+// 一次性存入多个缓存，移除多个缓存
 public class TransactionalCache implements Cache {
 
   private static final Log log = LogFactory.getLog(TransactionalCache.class);
 
   private final Cache delegate;
+  // commit时要不要清缓存
   private boolean clearOnCommit;
+  // commit时要添加的元素
   private final Map<Object, Object> entriesToAddOnCommit;
   private final Set<Object> entriesMissedInCache;
 
   public TransactionalCache(Cache delegate) {
     this.delegate = delegate;
+    // 默认commit时不清缓存
     this.clearOnCommit = false;
     this.entriesToAddOnCommit = new HashMap<>();
     this.entriesMissedInCache = new HashSet<>();

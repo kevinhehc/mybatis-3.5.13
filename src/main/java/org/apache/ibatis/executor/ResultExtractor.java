@@ -25,6 +25,7 @@ import org.apache.ibatis.session.Configuration;
 /**
  * @author Andrew Gustafson
  */
+//  结果抽取器
 public class ResultExtractor {
   private final Configuration configuration;
   private final ObjectFactory objectFactory;
@@ -37,12 +38,15 @@ public class ResultExtractor {
   public Object extractObjectFromList(List<Object> list, Class<?> targetType) {
     Object value = null;
     if (targetType != null && targetType.isAssignableFrom(list.getClass())) {
+      // 1.如果targetType是list，直接返回list
       value = list;
     } else if (targetType != null && objectFactory.isCollection(targetType)) {
+      // 2.如果targetType是Collection，返回包装好的list
       value = objectFactory.create(targetType);
       MetaObject metaObject = configuration.newMetaObject(value);
       metaObject.addAll(list);
     } else if (targetType != null && targetType.isArray()) {
+      // 3.如果targetType是数组，则数组转list
       Class<?> arrayComponentType = targetType.getComponentType();
       Object array = Array.newInstance(arrayComponentType, list.size());
       if (arrayComponentType.isPrimitive()) {
@@ -53,6 +57,7 @@ public class ResultExtractor {
       } else {
         value = list.toArray((Object[]) array);
       }
+      // 4.最后返回list的第0个元素
     } else if (list != null && list.size() > 1) {
       throw new ExecutorException("Statement returned more than one row, where no more than one was expected.");
     } else if (list != null && list.size() == 1) {

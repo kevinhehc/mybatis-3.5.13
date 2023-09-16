@@ -29,6 +29,7 @@ import org.apache.ibatis.cache.Cache;
  *
  * @author Clinton Begin
  */
+//  弱引用缓存，可以看到代码和SoftCache如出一辙，就是SoftReference变成了WeakReference
 public class WeakCache implements Cache {
   private final Deque<Object> hardLinksToAvoidGarbageCollection;
   private final ReferenceQueue<Object> queueOfGarbageCollectedEntries;

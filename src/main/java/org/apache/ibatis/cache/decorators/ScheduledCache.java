@@ -22,6 +22,8 @@ import org.apache.ibatis.cache.Cache;
 /**
  * @author Clinton Begin
  */
+// 定时调度缓存
+// 目的是每一小时清空一下缓存
 public class ScheduledCache implements Cache {
 
   private final Cache delegate;
@@ -30,6 +32,7 @@ public class ScheduledCache implements Cache {
 
   public ScheduledCache(Cache delegate) {
     this.delegate = delegate;
+    // 1小时清空一次缓存
     this.clearInterval = TimeUnit.HOURS.toMillis(1);
     this.lastClear = System.currentTimeMillis();
   }
@@ -83,6 +86,7 @@ public class ScheduledCache implements Cache {
   }
 
   private boolean clearWhenStale() {
+    // 如果到时间了，清空一下缓存
     if (System.currentTimeMillis() - lastClear > clearInterval) {
       clear();
       return true;

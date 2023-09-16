@@ -44,6 +44,7 @@ import org.apache.ibatis.session.Configuration;
  *
  * @deprecated Since 3.5.10, use Javassist instead.
  */
+// Cglib延迟加载代理工厂
 @Deprecated
 public class CglibProxyFactory implements ProxyFactory {
 
@@ -52,6 +53,7 @@ public class CglibProxyFactory implements ProxyFactory {
 
   public CglibProxyFactory() {
     try {
+      // 先检查是否有Cglib
       Resources.classForName("net.sf.cglib.proxy.Enhancer");
     } catch (Throwable e) {
       throw new IllegalStateException(

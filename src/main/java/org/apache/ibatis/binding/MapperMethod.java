@@ -44,6 +44,7 @@ import org.apache.ibatis.session.SqlSession;
  * @author Lasse Voss
  * @author Kazuki Shimizu
  */
+// 映射器方法，就是对应 mapper的一个接口方法，xml的一个sql定义
 public class MapperMethod {
 
   private final SqlCommand command;
@@ -54,8 +55,10 @@ public class MapperMethod {
     this.method = new MethodSignature(config, mapperInterface, method);
   }
 
+  // 执行
   public Object execute(SqlSession sqlSession, Object[] args) {
     Object result;
+    // 可以看到执行时就是4种情况，insert|update|delete|select，分别调用SqlSession的4大类方法
     switch (command.getType()) {
       case INSERT: {
         Object param = method.convertArgsToSqlCommandParam(args);
@@ -74,15 +77,19 @@ public class MapperMethod {
       }
       case SELECT:
         if (method.returnsVoid() && method.hasResultHandler()) {
+          // 如果有结果处理器
           executeWithResultHandler(sqlSession, args);
           result = null;
         } else if (method.returnsMany()) {
+          // 如果结果有多条记录
           result = executeForMany(sqlSession, args);
         } else if (method.returnsMap()) {
+          // 如果结果是map
           result = executeForMap(sqlSession, args);
         } else if (method.returnsCursor()) {
           result = executeForCursor(sqlSession, args);
         } else {
+          // 否则就是一条记录
           Object param = method.convertArgsToSqlCommandParam(args);
           result = sqlSession.selectOne(command.getName(), param);
           if (method.returnsOptional() && (result == null || !method.getReturnType().equals(result.getClass()))) {
@@ -103,15 +110,19 @@ public class MapperMethod {
     return result;
   }
 
+  // 这个方法对返回值的类型进行了一些检查，使得更安全
   private Object rowCountResult(int rowCount) {
     final Object result;
     if (method.returnsVoid()) {
       result = null;
     } else if (Integer.class.equals(method.getReturnType()) || Integer.TYPE.equals(method.getReturnType())) {
+      // 如果返回值是大int或小int
       result = rowCount;
     } else if (Long.class.equals(method.getReturnType()) || Long.TYPE.equals(method.getReturnType())) {
+      // 如果返回值是大long或小long
       result = (long) rowCount;
     } else if (Boolean.class.equals(method.getReturnType()) || Boolean.TYPE.equals(method.getReturnType())) {
+      // 如果返回值是大boolean或小boolean
       result = rowCount > 0;
     } else {
       throw new BindingException(
@@ -120,6 +131,7 @@ public class MapperMethod {
     return result;
   }
 
+  // 结果处理器
   private void executeWithResultHandler(SqlSession sqlSession, Object[] args) {
     MappedStatement ms = sqlSession.getConfiguration().getMappedStatement(command.getName());
     if (!StatementType.CALLABLE.equals(ms.getStatementType())
@@ -137,9 +149,11 @@ public class MapperMethod {
     }
   }
 
+  // 多条记录
   private <E> Object executeForMany(SqlSession sqlSession, Object[] args) {
     List<E> result;
     Object param = method.convertArgsToSqlCommandParam(args);
+    // 代入RowBounds
     if (method.hasRowBounds()) {
       RowBounds rowBounds = method.extractRowBounds(args);
       result = sqlSession.selectList(command.getName(), param, rowBounds);
@@ -200,6 +214,7 @@ public class MapperMethod {
     return result;
   }
 
+  // 参数map，静态内部类,更严格的get方法，如果没有相应的key，报错
   public static class ParamMap<V> extends HashMap<String, V> {
 
     private static final long serialVersionUID = -2212268410512043556L;
@@ -214,6 +229,7 @@ public class MapperMethod {
 
   }
 
+  // SQL命令，静态内部类
   public static class SqlCommand {
 
     private final String name;
@@ -258,6 +274,7 @@ public class MapperMethod {
       }
       for (Class<?> superInterface : mapperInterface.getInterfaces()) {
         if (declaringClass.isAssignableFrom(superInterface)) {
+          // 如果不是这个mapper接口的方法，再去查父类
           MappedStatement ms = resolveMappedStatement(superInterface, methodName, declaringClass, configuration);
           if (ms != null) {
             return ms;
@@ -268,6 +285,7 @@ public class MapperMethod {
     }
   }
 
+  // 方法签名，静态内部类
   public static class MethodSignature {
 
     private final boolean returnsMany;
@@ -296,7 +314,10 @@ public class MapperMethod {
       this.returnsOptional = Optional.class.equals(this.returnType);
       this.mapKey = getMapKey(method);
       this.returnsMap = this.mapKey != null;
+      // 以下重复循环2遍调用getUniqueParamIndex，是不是降低效率了
+      // 记下RowBounds是第几个参数
       this.rowBoundsIndex = getUniqueParamIndex(method, RowBounds.class);
+      // 记下ResultHandler是第几个参数
       this.resultHandlerIndex = getUniqueParamIndex(method, ResultHandler.class);
       this.paramNameResolver = new ParamNameResolver(configuration, method);
     }
@@ -374,6 +395,7 @@ public class MapperMethod {
     private String getMapKey(Method method) {
       String mapKey = null;
       if (Map.class.isAssignableFrom(method.getReturnType())) {
+        // 如果返回类型是map类型的，查看该method是否有MapKey注解。如果有这个注解，将这个注解的值作为map的key
         final MapKey mapKeyAnnotation = method.getAnnotation(MapKey.class);
         if (mapKeyAnnotation != null) {
           mapKey = mapKeyAnnotation.value();

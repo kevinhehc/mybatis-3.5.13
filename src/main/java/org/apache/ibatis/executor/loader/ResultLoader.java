@@ -37,6 +37,7 @@ import org.apache.ibatis.transaction.TransactionFactory;
 /**
  * @author Clinton Begin
  */
+// 结果延迟加载器
 public class ResultLoader {
 
   protected final Configuration configuration;
@@ -67,6 +68,7 @@ public class ResultLoader {
     this.creatorThreadId = Thread.currentThread().getId();
   }
 
+  // 加载结果
   public Object loadResult() throws SQLException {
     List<Object> list = selectList();
     resultObject = resultExtractor.extractObjectFromList(list, targetType);
@@ -75,10 +77,12 @@ public class ResultLoader {
 
   private <E> List<E> selectList() throws SQLException {
     Executor localExecutor = executor;
+    // 如果executor已经被关闭了，则创建一个新的
     if (Thread.currentThread().getId() != this.creatorThreadId || localExecutor.isClosed()) {
       localExecutor = newExecutor();
     }
     try {
+      // 又调回Executor.query去了
       return localExecutor.query(mappedStatement, parameterObject, RowBounds.DEFAULT, Executor.NO_RESULT_HANDLER,
           cacheKey, boundSql);
     } finally {
@@ -99,6 +103,7 @@ public class ResultLoader {
     }
     final TransactionFactory transactionFactory = environment.getTransactionFactory();
     final Transaction tx = transactionFactory.newTransaction(ds, null, false);
+    // 如果executor已经被关闭了，则创建一个新的SimpleExecutor
     return configuration.newExecutor(tx, ExecutorType.SIMPLE);
   }
 

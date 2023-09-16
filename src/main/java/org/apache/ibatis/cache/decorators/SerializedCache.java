@@ -32,6 +32,8 @@ import org.apache.ibatis.io.SerialFilterChecker;
 /**
  * @author Clinton Begin
  */
+// 序列化缓存
+// 用途是先将对象序列化成2进制，再缓存,好处是将对象压缩了，省内存坏处是速度慢了
 public class SerializedCache implements Cache {
 
   private final Cache delegate;
@@ -55,12 +57,14 @@ public class SerializedCache implements Cache {
     if ((object != null) && !(object instanceof Serializable)) {
       throw new CacheException("SharedCache failed to make a copy of a non-serializable object: " + object);
     }
+    // 先序列化，再委托被包装者putObject
     delegate.putObject(key, serialize((Serializable) object));
   }
 
   @Override
   public Object getObject(Object key) {
     Object object = delegate.getObject(key);
+    // 先委托被包装者getObject,再反序列化
     return object == null ? null : deserialize((byte[]) object);
   }
 
@@ -85,6 +89,7 @@ public class SerializedCache implements Cache {
   }
 
   private byte[] serialize(Serializable value) {
+    // 序列化核心就是ByteArrayOutputStream
     try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(bos)) {
       oos.writeObject(value);
@@ -98,6 +103,7 @@ public class SerializedCache implements Cache {
   private Serializable deserialize(byte[] value) {
     SerialFilterChecker.check();
     Serializable result;
+    // 反序列化核心就是ByteArrayInputStream
     try (ByteArrayInputStream bis = new ByteArrayInputStream(value);
         ObjectInputStream ois = new CustomObjectInputStream(bis)) {
       result = (Serializable) ois.readObject();

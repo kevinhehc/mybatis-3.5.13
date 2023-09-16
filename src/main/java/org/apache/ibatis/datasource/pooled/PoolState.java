@@ -21,19 +21,28 @@ import java.util.List;
 /**
  * @author Clinton Begin
  */
+// 池状态
 public class PoolState {
 
   protected PooledDataSource dataSource;
 
+  // 空闲的连接
   protected final List<PooledConnection> idleConnections = new ArrayList<>();
+  // 活动的连接
   protected final List<PooledConnection> activeConnections = new ArrayList<>();
+  //----------以下是一些统计信息----------
+  // 请求次数
   protected long requestCount;
+  // 总请求时间
   protected long accumulatedRequestTime;
   protected long accumulatedCheckoutTime;
   protected long claimedOverdueConnectionCount;
   protected long accumulatedCheckoutTimeOfOverdueConnections;
+  // 总等待时间
   protected long accumulatedWaitTime;
+  // 要等待的次数
   protected long hadToWaitCount;
+  // 坏的连接次数
   protected long badConnectionCount;
 
   public PoolState(PooledDataSource dataSource) {
@@ -84,6 +93,7 @@ public class PoolState {
 
   @Override
   public synchronized String toString() {
+    // 打印统计信息，可以供性能优化用
     StringBuilder builder = new StringBuilder();
     builder.append("\n===CONFIGURATION==============================================");
     builder.append("\n jdbcDriver                     ").append(dataSource.getDriver());

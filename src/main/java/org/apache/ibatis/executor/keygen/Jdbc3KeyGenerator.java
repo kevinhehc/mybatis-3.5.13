@@ -47,6 +47,7 @@ import org.apache.ibatis.util.MapUtil;
  * @author Clinton Begin
  * @author Kazuki Shimizu
  */
+// JDBC3键值生成器,核心是使用JDBC3的Statement.getGeneratedKeys
 public class Jdbc3KeyGenerator implements KeyGenerator {
 
   private static final String SECOND_GENERIC_PARAM_NAME = ParamNameResolver.GENERIC_NAME_PREFIX + "2";
@@ -71,6 +72,7 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
     processBatch(ms, stmt, parameter);
   }
 
+  // 批处理
   public void processBatch(MappedStatement ms, Statement stmt, Object parameter) {
     final String[] keyProperties = ms.getKeyProperties();
     if (keyProperties == null || keyProperties.length == 0) {

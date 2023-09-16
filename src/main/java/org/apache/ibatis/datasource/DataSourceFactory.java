@@ -22,6 +22,8 @@ import javax.sql.DataSource;
 /**
  * @author Clinton Begin
  */
+// 数据源工厂
+// 有三种内建的数据源类型 UNPOOLED POOLED JNDI
 public interface DataSourceFactory {
 
   void setProperties(Properties props);

@@ -25,12 +25,15 @@ import org.apache.ibatis.cursor.Cursor;
 /**
  * @author Clinton Begin
  */
+//  结果集处理器
 public interface ResultSetHandler {
 
+  // 处理结果集
   <E> List<E> handleResultSets(Statement stmt) throws SQLException;
 
   <E> Cursor<E> handleCursorResultSets(Statement stmt) throws SQLException;
 
+  // 处理OUT参数
   void handleOutputParameters(CallableStatement cs) throws SQLException;
 
 }

@@ -31,6 +31,7 @@ import java.util.HashMap;
  *
  * @author Frank D. Martinez [mnesarco]
  */
+// 参数表达式,继承自HashMap，可以参考ParameterExpressionTest
 public class ParameterExpression extends HashMap<String, String> {
 
   private static final long serialVersionUID = -2417552199605158680L;
@@ -40,14 +41,18 @@ public class ParameterExpression extends HashMap<String, String> {
   }
 
   private void parse(String expression) {
+    // 首先去除空白,返回的p是第一个不是空白的字符位置
     int p = skipWS(expression, 0);
     if (expression.charAt(p) == '(') {
+      // 处理表达式
       expression(expression, p + 1);
     } else {
+      // 处理属性
       property(expression, p);
     }
   }
 
+  // 表达式
   private void expression(String expression, int left) {
     int match = 1;
     int right = left + 1;
@@ -65,8 +70,10 @@ public class ParameterExpression extends HashMap<String, String> {
 
   private void property(String expression, int left) {
     if (left < expression.length()) {
+      // 首先，得到逗号或者冒号之前的字符串，加入到property
       int right = skipUntil(expression, left, ",:");
       put("property", trimmedStr(expression, left, right));
+      // 第二，处理javaType，jdbcType
       jdbcTypeOpt(expression, right);
     }
   }
@@ -91,8 +98,10 @@ public class ParameterExpression extends HashMap<String, String> {
   }
 
   private void jdbcTypeOpt(String expression, int p) {
+    // 首先去除空白,返回的p是第一个不是空白的字符位置
     p = skipWS(expression, p);
     if (p < expression.length()) {
+      // 第一个property解析完有两种情况，逗号和冒号
       if (expression.charAt(p) == ':') {
         jdbcType(expression, p + 1);
       } else if (expression.charAt(p) == ',') {
@@ -114,6 +123,7 @@ public class ParameterExpression extends HashMap<String, String> {
   }
 
   private void option(String expression, int p) {
+    // #{property,javaType=int,jdbcType=NUMERIC}
     int left = skipWS(expression, p);
     if (left < expression.length()) {
       int right = skipUntil(expression, left, "=");
@@ -122,6 +132,7 @@ public class ParameterExpression extends HashMap<String, String> {
       right = skipUntil(expression, left, ",");
       String value = trimmedStr(expression, left, right);
       put(name, value);
+      // 递归调用option，进行逗号后面一个属性的解析
       option(expression, right + 1);
     }
   }

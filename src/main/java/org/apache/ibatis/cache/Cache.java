@@ -38,12 +38,13 @@ import java.util.concurrent.locks.ReadWriteLock;
  *
  * @author Clinton Begin
  */
-
+// 缓存
 public interface Cache {
 
   /**
    * @return The identifier of this cache
    */
+  // 取得ID
   String getId();
 
   /**
@@ -52,6 +53,7 @@ public interface Cache {
    * @param value
    *          The result of a select.
    */
+  // 存入值
   void putObject(Object key, Object value);
 
   /**
@@ -60,6 +62,7 @@ public interface Cache {
    *
    * @return The object stored in the cache.
    */
+  // 获取值
   Object getObject(Object key);
 
   /**
@@ -73,11 +76,13 @@ public interface Cache {
    *
    * @return Not used
    */
+  // 删除值
   Object removeObject(Object key);
 
   /**
    * Clears this cache instance.
    */
+  // 清空
   void clear();
 
   /**
@@ -85,6 +90,7 @@ public interface Cache {
    *
    * @return The number of elements stored in the cache (not its capacity).
    */
+  // 取得大小
   int getSize();
 
   /**
@@ -94,6 +100,7 @@ public interface Cache {
    *
    * @return A ReadWriteLock
    */
+  // 取得读写锁, 从3.2.6开始没用了，要SPI自己实现锁
   default ReadWriteLock getReadWriteLock() {
     return null;
   }

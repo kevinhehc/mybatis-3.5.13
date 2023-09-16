@@ -41,6 +41,7 @@ import org.apache.ibatis.session.Configuration;
 /**
  * @author Eduardo Macarron
  */
+// Javassist延迟加载代理工厂
 public class JavassistProxyFactory implements org.apache.ibatis.executor.loader.ProxyFactory {
 
   private static final String FINALIZE_METHOD = "finalize";
@@ -48,6 +49,7 @@ public class JavassistProxyFactory implements org.apache.ibatis.executor.loader.
 
   public JavassistProxyFactory() {
     try {
+      //先检查是否有javassist
       Resources.classForName("javassist.util.proxy.ProxyFactory");
     } catch (Throwable e) {
       throw new IllegalStateException(
@@ -71,6 +73,7 @@ public class JavassistProxyFactory implements org.apache.ibatis.executor.loader.
   static Object createStaticProxy(Class<?> type, MethodHandler callback, List<Class<?>> constructorArgTypes,
       List<Object> constructorArgs) {
 
+    // 核心就是用javassist的ProxyFactory，下面逻辑都是cglib的翻版
     ProxyFactory enhancer = new ProxyFactory();
     enhancer.setSuperclass(type);
 

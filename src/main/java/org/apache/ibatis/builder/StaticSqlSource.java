@@ -25,6 +25,7 @@ import org.apache.ibatis.session.Configuration;
 /**
  * @author Clinton Begin
  */
+// 静态SQL源码
 public class StaticSqlSource implements SqlSource {
 
   private final String sql;

@@ -43,6 +43,7 @@ public class SqlSourceBuilder extends BaseBuilder {
   public SqlSource parse(String originalSql, Class<?> parameterType, Map<String, Object> additionalParameters) {
     ParameterMappingTokenHandler handler = new ParameterMappingTokenHandler(configuration, parameterType,
         additionalParameters);
+    // 替换#{}中间的部分,如何替换，逻辑在ParameterMappingTokenHandler
     GenericTokenParser parser = new GenericTokenParser("#{", "}", handler);
     String sql;
     if (configuration.isShrinkWhitespacesInSql()) {
@@ -50,6 +51,7 @@ public class SqlSourceBuilder extends BaseBuilder {
     } else {
       sql = parser.parse(originalSql);
     }
+    // 返回静态SQL源码
     return new StaticSqlSource(configuration, sql, handler.getParameterMappings());
   }
 
@@ -67,6 +69,7 @@ public class SqlSourceBuilder extends BaseBuilder {
     return builder.toString();
   }
 
+  // 参数映射记号处理器，静态内部类
   private static class ParameterMappingTokenHandler extends BaseBuilder implements TokenHandler {
 
     private final List<ParameterMapping> parameterMappings = new ArrayList<>();
@@ -86,14 +89,20 @@ public class SqlSourceBuilder extends BaseBuilder {
 
     @Override
     public String handleToken(String content) {
+      // 先构建参数映射
       parameterMappings.add(buildParameterMapping(content));
+      // 如何替换很简单，永远是一个问号，但是参数的信息要记录在parameterMappings里面供后续使用
       return "?";
     }
 
+    // 构建参数映射
     private ParameterMapping buildParameterMapping(String content) {
+      // #{favouriteSection,jdbcType=VARCHAR}
+      // 先解析参数映射,就是转化成一个hashmap
       Map<String, String> propertiesMap = parseParameterMapping(content);
       String property = propertiesMap.get("property");
       Class<?> propertyType;
+      // 这里分支比较多，需要逐个理解
       if (metaParameters.hasGetter(property)) { // issue #448 get type from additional params
         propertyType = metaParameters.getGetterType(property);
       } else if (typeHandlerRegistry.hasTypeHandler(parameterType)) {
