@@ -23,6 +23,7 @@ import java.sql.SQLException;
 /**
  * @author Clinton Begin
  */
+//  String类型处理器
 public class StringTypeHandler extends BaseTypeHandler<String> {
 
   @Override

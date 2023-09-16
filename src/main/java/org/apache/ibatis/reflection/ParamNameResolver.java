@@ -163,11 +163,14 @@ public class ParamNameResolver {
    *
    * @since 3.5.5
    */
+  // 把参数包装成Collection
   public static Object wrapToMapIfCollection(Object object, String actualParamName) {
     if (object instanceof Collection) {
       ParamMap<Object> map = new ParamMap<>();
+      // 参数若是Collection型，做collection标记
       map.put("collection", object);
       if (object instanceof List) {
+        // 参数若是List型，做list标记
         map.put("list", object);
       }
       Optional.ofNullable(actualParamName).ifPresent(name -> map.put(name, object));
@@ -175,10 +178,12 @@ public class ParamNameResolver {
     }
     if (object != null && object.getClass().isArray()) {
       ParamMap<Object> map = new ParamMap<>();
+      // 参数若是数组型，，做array标记
       map.put("array", object);
       Optional.ofNullable(actualParamName).ifPresent(name -> map.put(name, object));
       return map;
     }
+    // 参数若不是集合型，直接返回原来值
     return object;
   }
 

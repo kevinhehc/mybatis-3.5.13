@@ -31,6 +31,7 @@ import org.apache.ibatis.transaction.TransactionFactory;
  *
  * @see JdbcTransaction
  */
+// JdbcTransaction工厂
 public class JdbcTransactionFactory implements TransactionFactory {
 
   private boolean skipSetAutoCommitOnClose;

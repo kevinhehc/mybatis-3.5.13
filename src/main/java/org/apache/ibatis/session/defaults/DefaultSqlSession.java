@@ -44,11 +44,13 @@ import org.apache.ibatis.session.SqlSession;
  *
  * @author Clinton Begin
  */
+// 默认SqlSession实现
 public class DefaultSqlSession implements SqlSession {
 
   private final Configuration configuration;
   private final Executor executor;
 
+  // 是否自动提交
   private final boolean autoCommit;
   private boolean dirty;
   private List<Cursor<?>> cursorList;
@@ -69,9 +71,14 @@ public class DefaultSqlSession implements SqlSession {
     return this.selectOne(statement, null);
   }
 
+  // 核心selectOne
   @Override
   public <T> T selectOne(String statement, Object parameter) {
     // Popular vote was to return null on 0 results and throw exception on too many.
+
+    // 转而去调用selectList,很简单的，如果得到0条则返回null，得到1条则返回1条，得到多条报TooManyResultsException错
+    // 特别需要主要的是当没有查询到结果的时候就会返回null。因此一般建议在mapper中编写resultType的时候使用包装类型
+    // 而不是基本类型，比如推荐使用Integer而不是int。这样就可以避免NPE
     List<T> list = this.selectList(statement, parameter);
     if (list.size() == 1) {
       return list.get(0);
@@ -94,16 +101,20 @@ public class DefaultSqlSession implements SqlSession {
     return this.selectMap(statement, parameter, mapKey, RowBounds.DEFAULT);
   }
 
+  //核心selectMap
   @Override
   public <K, V> Map<K, V> selectMap(String statement, Object parameter, String mapKey, RowBounds rowBounds) {
+    // 转而去调用selectList
     final List<? extends V> list = selectList(statement, parameter, rowBounds);
     final DefaultMapResultHandler<K, V> mapResultHandler = new DefaultMapResultHandler<>(mapKey,
         configuration.getObjectFactory(), configuration.getObjectWrapperFactory(), configuration.getReflectorFactory());
     final DefaultResultContext<V> context = new DefaultResultContext<>();
     for (V o : list) {
+      // 循环用DefaultMapResultHandler处理每条记录
       context.nextResultObject(o);
       mapResultHandler.handleResult(context);
     }
+    // 注意这个DefaultMapResultHandler里面存了所有已处理的记录(内部实现可能就是一个Map)，最后再返回一个Map
     return mapResultHandler.getMappedResults();
   }
 
@@ -147,10 +158,13 @@ public class DefaultSqlSession implements SqlSession {
     return selectList(statement, parameter, rowBounds, Executor.NO_RESULT_HANDLER);
   }
 
+  // 核心selectList
   private <E> List<E> selectList(String statement, Object parameter, RowBounds rowBounds, ResultHandler handler) {
     try {
+      // 根据statement id找到对应的MappedStatement
       MappedStatement ms = configuration.getMappedStatement(statement);
       dirty |= ms.isDirtySelect();
+      // 转而用执行器来查询结果,注意这里传入的ResultHandler是null
       return executor.query(ms, wrapCollection(parameter), rowBounds, handler);
     } catch (Exception e) {
       throw ExceptionFactory.wrapException("Error querying database.  Cause: " + e, e);
@@ -192,8 +206,10 @@ public class DefaultSqlSession implements SqlSession {
   @Override
   public int update(String statement, Object parameter) {
     try {
+      // 每次要更新之前，dirty标志设为true
       dirty = true;
       MappedStatement ms = configuration.getMappedStatement(statement);
+      // 转而用执行器来update结果
       return executor.update(ms, wrapCollection(parameter));
     } catch (Exception e) {
       throw ExceptionFactory.wrapException("Error updating database.  Cause: " + e, e);
@@ -220,7 +236,9 @@ public class DefaultSqlSession implements SqlSession {
   @Override
   public void commit(boolean force) {
     try {
+      // 转而用执行器来commit
       executor.commit(isCommitOrRollbackRequired(force));
+      // 每次commit之后，dirty标志设为false
       dirty = false;
     } catch (Exception e) {
       throw ExceptionFactory.wrapException("Error committing transaction.  Cause: " + e, e);
@@ -234,10 +252,13 @@ public class DefaultSqlSession implements SqlSession {
     rollback(false);
   }
 
+  // 核心rollback
   @Override
   public void rollback(boolean force) {
     try {
+      // 转而用执行器来rollback
       executor.rollback(isCommitOrRollbackRequired(force));
+      // 每次rollback之后，dirty标志设为false
       dirty = false;
     } catch (Exception e) {
       throw ExceptionFactory.wrapException("Error rolling back transaction.  Cause: " + e, e);
@@ -246,9 +267,11 @@ public class DefaultSqlSession implements SqlSession {
     }
   }
 
+  // 核心flushStatements
   @Override
   public List<BatchResult> flushStatements() {
     try {
+      // 转而用执行器来flushStatements
       return executor.flushStatements();
     } catch (Exception e) {
       throw ExceptionFactory.wrapException("Error flushing statements.  Cause: " + e, e);
@@ -257,11 +280,14 @@ public class DefaultSqlSession implements SqlSession {
     }
   }
 
+  // 核心close
   @Override
   public void close() {
     try {
+      // 转而用执行器来close
       executor.close(isCommitOrRollbackRequired(false));
       closeCursors();
+      // 每次close之后，dirty标志设为false
       dirty = false;
     } finally {
       ErrorContext.instance().reset();
@@ -288,6 +314,7 @@ public class DefaultSqlSession implements SqlSession {
 
   @Override
   public <T> T getMapper(Class<T> type) {
+    // 最后会去调用MapperRegistry.getMapper
     return configuration.getMapper(type, this);
   }
 
@@ -300,8 +327,10 @@ public class DefaultSqlSession implements SqlSession {
     }
   }
 
+  // 核心clearCache
   @Override
   public void clearCache() {
+    // 转而用执行器来clearLocalCache
     executor.clearLocalCache();
   }
 
@@ -312,6 +341,7 @@ public class DefaultSqlSession implements SqlSession {
     cursorList.add(cursor);
   }
 
+  // 检查是否需要强制commit或rollback
   private boolean isCommitOrRollbackRequired(boolean force) {
     return !autoCommit && dirty || force;
   }

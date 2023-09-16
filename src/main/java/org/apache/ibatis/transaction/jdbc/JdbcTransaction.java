@@ -35,6 +35,8 @@ import org.apache.ibatis.transaction.TransactionException;
  *
  * @see JdbcTransactionFactory
  */
+// Jdbc事务。直接利用JDBC的commit,rollback。
+// 它依赖于从数据源得 到的连接来管理事务范围。
 public class JdbcTransaction implements Transaction {
 
   private static final Log log = LogFactory.getLog(JdbcTransaction.class);
@@ -102,6 +104,7 @@ public class JdbcTransaction implements Transaction {
 
   protected void setDesiredAutoCommit(boolean desiredAutoCommit) {
     try {
+      // 和原来的比一下，再设置autocommit
       if (connection.getAutoCommit() != desiredAutoCommit) {
         if (log.isDebugEnabled()) {
           log.debug("Setting autocommit to " + desiredAutoCommit + " on JDBC Connection [" + connection + "]");
@@ -118,6 +121,7 @@ public class JdbcTransaction implements Transaction {
     }
   }
 
+  // 见下面注释，貌似是说是对有些DB的一个workaround
   protected void resetAutoCommit() {
     try {
       if (!skipSetAutoCommitOnClose && !connection.getAutoCommit()) {

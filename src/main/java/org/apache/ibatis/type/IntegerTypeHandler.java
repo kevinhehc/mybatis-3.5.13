@@ -23,6 +23,7 @@ import java.sql.SQLException;
 /**
  * @author Clinton Begin
  */
+// Integer类型处理器
 public class IntegerTypeHandler extends BaseTypeHandler<Integer> {
 
   @Override

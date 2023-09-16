@@ -28,8 +28,10 @@ import java.lang.reflect.Type;
  *
  * @author Simone Tripodi
  */
+// 新加的类型引用,为了引用一个泛型类型
 public abstract class TypeReference<T> {
 
+  // 引用的原生类型
   private final Type rawType;
 
   protected TypeReference() {

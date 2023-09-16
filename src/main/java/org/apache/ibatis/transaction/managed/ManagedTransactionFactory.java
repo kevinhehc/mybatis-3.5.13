@@ -31,6 +31,9 @@ import org.apache.ibatis.transaction.TransactionFactory;
  *
  * @see ManagedTransaction
  */
+// 托管事务工厂
+// 默认 情况下它会关闭连接。
+// 然而一些容器并不希望这样, 因此如果你需要从连接中停止 它,将 closeConnection 属性设置为 false。
 public class ManagedTransactionFactory implements TransactionFactory {
 
   private boolean closeConnection = true;

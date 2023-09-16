@@ -29,6 +29,8 @@ import org.apache.ibatis.executor.BatchResult;
  *
  * @author Clinton Begin
  */
+// 这是MyBatis主要的一个类，用来执行SQL，获取映射器，管理事务
+// 通常情况下，我们在应用程序中使用的Mybatis的API就是这个接口定义的方法。
 public interface SqlSession extends Closeable {
 
   /**
@@ -114,6 +116,7 @@ public interface SqlSession extends Closeable {
    *
    * @return Map containing key pair data.
    */
+  // 获取多条记录,加上分页,并存入Map
   <K, V> Map<K, V> selectMap(String statement, String mapKey);
 
   /**
@@ -133,6 +136,7 @@ public interface SqlSession extends Closeable {
    *
    * @return Map containing key pair data.
    */
+  // 获取多条记录,加上分页,并存入Map
   <K, V> Map<K, V> selectMap(String statement, Object parameter, String mapKey);
 
   /**
@@ -154,6 +158,7 @@ public interface SqlSession extends Closeable {
    *
    * @return Map containing key pair data.
    */
+  // 获取多条记录,加上分页,并存入Map
   <K, V> Map<K, V> selectMap(String statement, Object parameter, String mapKey, RowBounds rowBounds);
 
   /**
@@ -218,6 +223,8 @@ public interface SqlSession extends Closeable {
    * @param handler
    *          ResultHandler that will handle each retrieved row
    */
+  // 获取一条记录,并转交给ResultHandler处理。这个方法容许我们自己定义对
+  // 查询到的行的处理方式。不过一般用的并不是很多
   void select(String statement, ResultHandler handler);
 
   /**
@@ -233,6 +240,7 @@ public interface SqlSession extends Closeable {
    * @param handler
    *          ResultHandler that will handle each retrieved row
    */
+  // 获取一条记录,加上分页,并转交给ResultHandler处理
   void select(String statement, Object parameter, RowBounds rowBounds, ResultHandler handler);
 
   /**
@@ -243,6 +251,7 @@ public interface SqlSession extends Closeable {
    *
    * @return int The number of rows affected by the insert.
    */
+  // 插入记录，容许传入参数。
   int insert(String statement);
 
   /**
@@ -256,6 +265,7 @@ public interface SqlSession extends Closeable {
    *
    * @return int The number of rows affected by the insert.
    */
+  // 更新记录。返回的是受影响的行数
   int insert(String statement, Object parameter);
 
   /**
@@ -278,6 +288,7 @@ public interface SqlSession extends Closeable {
    *
    * @return int The number of rows affected by the update.
    */
+  // 更新记录
   int update(String statement, Object parameter);
 
   /**
@@ -288,6 +299,7 @@ public interface SqlSession extends Closeable {
    *
    * @return int The number of rows affected by the delete.
    */
+  // 删除记录
   int delete(String statement);
 
   /**
@@ -302,6 +314,7 @@ public interface SqlSession extends Closeable {
    */
   int delete(String statement, Object parameter);
 
+  // 以下是事务控制方法,commit,rollback
   /**
    * Flushes batch statements and commits database connection. Note that database connection will not be committed if no
    * updates/deletes/inserts were called. To force the commit call {@link SqlSession#commit(boolean)}
@@ -339,17 +352,20 @@ public interface SqlSession extends Closeable {
    *
    * @since 3.0.6
    */
+  // 刷新批处理语句,返回批处理结果
   List<BatchResult> flushStatements();
 
   /**
    * Closes the session.
    */
+  // 关闭Session
   @Override
   void close();
 
   /**
    * Clears local session cache.
    */
+  // 清理Session缓存
   void clearCache();
 
   /**
@@ -357,6 +373,7 @@ public interface SqlSession extends Closeable {
    *
    * @return Configuration
    */
+  // 得到配置
   Configuration getConfiguration();
 
   /**
@@ -369,6 +386,9 @@ public interface SqlSession extends Closeable {
    *
    * @return a mapper bound to this SqlSession
    */
+  // 得到映射器
+  // 这个巧妙的使用了泛型，使得类型安全
+  // 到了MyBatis 3，还可以用注解,这样xml都不用写了
   <T> T getMapper(Class<T> type);
 
   /**
@@ -376,5 +396,6 @@ public interface SqlSession extends Closeable {
    *
    * @return Connection
    */
+  // 得到数据库连接
   Connection getConnection();
 }

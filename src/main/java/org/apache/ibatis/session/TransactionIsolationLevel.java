@@ -20,7 +20,9 @@ import java.sql.Connection;
 /**
  * @author Clinton Begin
  */
+// 事务隔离级别
 public enum TransactionIsolationLevel {
+  // 包括JDBC支持的5个级别
   NONE(Connection.TRANSACTION_NONE),
 
   READ_COMMITTED(Connection.TRANSACTION_READ_COMMITTED),
