@@ -22,6 +22,7 @@ import org.apache.ibatis.reflection.Reflector;
 /**
  * @author Clinton Begin
  */
+// setter调用者
 public class SetFieldInvoker implements Invoker {
   private final Field field;
 
@@ -29,6 +30,7 @@ public class SetFieldInvoker implements Invoker {
     this.field = field;
   }
 
+  // 就是调用Field.set
   @Override
   public Object invoke(Object target, Object[] args) throws IllegalAccessException {
     try {

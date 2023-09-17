@@ -35,6 +35,8 @@ import java.util.regex.Pattern;
  *
  * @author Clinton Begin
  */
+// 脚本运行器,可以运行SQL脚本，如建表，插入数据，作为单元测试的前期准备
+// 这个类其实可以被所有项目的单元测试作为工具所利用
 public class ScriptRunner {
 
   private static final String LINE_SEPARATOR = System.lineSeparator();
@@ -240,6 +242,7 @@ public class ScriptRunner {
   }
 
   private void executeStatement(String command) throws SQLException {
+    // 就是用最简单的JDBC来执行
     try (Statement statement = connection.createStatement()) {
       statement.setEscapeProcessing(escapeProcessing);
       String sql = command;

@@ -29,6 +29,7 @@ import org.apache.ibatis.logging.LogFactory;
 /**
  * @author Clinton Begin
  */
+// 类似于commons-io里的一些util方法,不过实际上没有任何地方用到了这个类
 @Deprecated
 public class ExternalResources {
 
@@ -38,6 +39,7 @@ public class ExternalResources {
     // do nothing
   }
 
+  // 复制文件
   public static void copyExternalResource(File sourceFile, File destFile) throws IOException {
     if (!destFile.exists()) {
       destFile.createNewFile();

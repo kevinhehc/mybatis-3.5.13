@@ -18,6 +18,7 @@ package org.apache.ibatis.mapping;
 /**
  * @author Clinton Begin
  */
+//  参数模式（给SP用）
 public enum ParameterMode {
 
   IN,

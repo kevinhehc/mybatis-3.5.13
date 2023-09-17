@@ -20,14 +20,18 @@ import java.util.Properties;
 /**
  * @author Clinton Begin
  */
+// 拦截器
 public interface Interceptor {
 
+  // 拦截
   Object intercept(Invocation invocation) throws Throwable;
 
+  // 插入
   default Object plugin(Object target) {
     return Plugin.wrap(target, this);
   }
 
+  // 设置属性
   default void setProperties(Properties properties) {
     // NOP
   }

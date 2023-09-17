@@ -51,34 +51,48 @@ import org.apache.ibatis.util.MapUtil;
  *
  * @author Clinton Begin
  */
+// 反射器, 属性->getter/setter的映射器，而且加了缓存
+// 可参考ReflectorTest来理解这个类的用处
 public class Reflector {
 
   private static final MethodHandle isRecordMethodHandle = getIsRecordMethodHandle();
   private final Class<?> type;
+  // getter的属性列表
   private final String[] readablePropertyNames;
+  // setter的属性列表
   private final String[] writablePropertyNames;
+  // setter的方法列表
   private final Map<String, Invoker> setMethods = new HashMap<>();
+  // getter的方法列表
   private final Map<String, Invoker> getMethods = new HashMap<>();
+  // setter的类型列表
   private final Map<String, Class<?>> setTypes = new HashMap<>();
+  // getter的类型列表
   private final Map<String, Class<?>> getTypes = new HashMap<>();
+  // 构造函数
   private Constructor<?> defaultConstructor;
 
   private final Map<String, String> caseInsensitivePropertyMap = new HashMap<>();
 
   public Reflector(Class<?> clazz) {
     type = clazz;
+    // 加入构造函数
     addDefaultConstructor(clazz);
     Method[] classMethods = getClassMethods(clazz);
     if (isRecord(type)) {
       addRecordGetMethods(classMethods);
     } else {
+      // 加入getter
       addGetMethods(classMethods);
+      // 加入setter
       addSetMethods(classMethods);
+      // 加入字段
       addFields(clazz);
     }
     readablePropertyNames = getMethods.keySet().toArray(new String[0]);
     writablePropertyNames = setMethods.keySet().toArray(new String[0]);
     for (String propName : readablePropertyNames) {
+      // 这里为了能找到某一个属性，就把他变成大写作为map的key
       caseInsensitivePropertyMap.put(propName.toUpperCase(Locale.ENGLISH), propName);
     }
     for (String propName : writablePropertyNames) {
@@ -285,6 +299,7 @@ public class Reflector {
    *
    * @return An array containing all methods in this class
    */
+  // 得到所有方法，包括private方法，包括父类方法.包括接口方法
   private Method[] getClassMethods(Class<?> clazz) {
     Map<String, Method> uniqueMethods = new HashMap<>();
     Class<?> currentClass = clazz;
@@ -309,6 +324,7 @@ public class Reflector {
   private void addUniqueMethods(Map<String, Method> uniqueMethods, Method[] methods) {
     for (Method currentMethod : methods) {
       if (!currentMethod.isBridge()) {
+        // 取得签名
         String signature = getSignature(currentMethod);
         // check to see if the method is already known
         // if it is known, then an extended class must have

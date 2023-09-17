@@ -27,6 +27,9 @@ import java.util.List;
  * @author Adam Gent
  * @author Kazuki Shimizu
  */
+// AbstractSQL, Statement Builder的核心,参见mybatis文档Statement Builders一章
+// 建造者模式
+// 可以参考SQLTest，实际上感觉这个类用处不大
 public abstract class AbstractSQL<T> {
 
   private static final String AND = ") \nAND (";
@@ -105,6 +108,7 @@ public abstract class AbstractSQL<T> {
     return getSelf();
   }
 
+  // select这个list里加入columns，可以看到下面的方法都是类似的，就是建造者模式，把属性一个个set进去
   public T SELECT(String columns) {
     sql().statementType = SQLStatement.StatementType.SELECT;
     sql().select.add(columns);
@@ -533,6 +537,7 @@ public abstract class AbstractSQL<T> {
     return sb.toString();
   }
 
+  // 安全的Appendable
   private static class SafeAppendable {
     private final Appendable appendable;
     private boolean empty = true;
@@ -559,8 +564,10 @@ public abstract class AbstractSQL<T> {
 
   }
 
+  // SQL语句
   private static class SQLStatement {
 
+    // 4种语句类型
     public enum StatementType {
 
       DELETE,
@@ -620,6 +627,7 @@ public abstract class AbstractSQL<T> {
     List<String> having = new ArrayList<>();
     List<String> groupBy = new ArrayList<>();
     List<String> orderBy = new ArrayList<>();
+    // 标记最后一个list
     List<String> lastList = new ArrayList<>();
     List<String> columns = new ArrayList<>();
     List<List<String>> valuesList = new ArrayList<>();
@@ -637,6 +645,7 @@ public abstract class AbstractSQL<T> {
         String conjunction) {
       if (!parts.isEmpty()) {
         if (!builder.isEmpty()) {
+          // 如果前面有东西，另起一行
           builder.append("\n");
         }
         builder.append(keyword);
@@ -655,6 +664,7 @@ public abstract class AbstractSQL<T> {
       }
     }
 
+    // 拼装select语句,可以看到都是调用sqlClause，
     private String selectSQL(SafeAppendable builder) {
       if (distinct) {
         sqlClause(builder, "SELECT DISTINCT", select, "", "", ", ");
@@ -664,6 +674,7 @@ public abstract class AbstractSQL<T> {
 
       sqlClause(builder, "FROM", tables, "", "", ", ");
       joins(builder);
+      // where条件默认拼接上AND
       sqlClause(builder, "WHERE", where, "(", ")", " AND ");
       sqlClause(builder, "GROUP BY", groupBy, "", "", ", ");
       sqlClause(builder, "HAVING", having, "(", ")", " AND ");
@@ -705,6 +716,7 @@ public abstract class AbstractSQL<T> {
       return builder.toString();
     }
 
+    // 拼装SQL
     public String sql(Appendable a) {
       SafeAppendable builder = new SafeAppendable(a);
       if (statementType == null) {

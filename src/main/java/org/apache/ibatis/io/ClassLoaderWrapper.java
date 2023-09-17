@@ -23,6 +23,7 @@ import java.net.URL;
  *
  * @author Clinton Begin
  */
+// 封装了5个类加载器,见getClassLoaders方法
 public class ClassLoaderWrapper {
 
   ClassLoader defaultClassLoader;
@@ -160,6 +161,7 @@ public class ClassLoaderWrapper {
    *
    * @return the resource or null
    */
+  // 用5个类加载器一个个查找资源，只要其中任何一个找到，就返回
   URL getResourceAsURL(String resource, ClassLoader[] classLoader) {
 
     URL url;
@@ -205,6 +207,7 @@ public class ClassLoaderWrapper {
    * @throws ClassNotFoundException
    *           - Remember the wisdom of Judge Smails: Well, the world needs ditch diggers, too.
    */
+  // 用5个类加载器一个个调用Class.forName(加载类)，只要其中任何一个加载成功，就返回
   Class<?> classForName(String name, ClassLoader[] classLoader) throws ClassNotFoundException {
 
     for (ClassLoader cl : classLoader) {
@@ -228,6 +231,8 @@ public class ClassLoaderWrapper {
   }
 
   ClassLoader[] getClassLoaders(ClassLoader classLoader) {
+    // 一共5个类加载器
+    // hhc
     return new ClassLoader[] { classLoader, defaultClassLoader, Thread.currentThread().getContextClassLoader(),
         getClass().getClassLoader(), systemClassLoader };
   }

@@ -24,6 +24,7 @@ import org.apache.ibatis.session.Configuration;
 /**
  * @author Clinton Begin
  */
+// foreach SQL节点
 public class ForEachSqlNode implements SqlNode {
   public static final String ITEM_PREFIX = "__frch_";
 
@@ -68,12 +69,14 @@ public class ForEachSqlNode implements SqlNode {
   @Override
   public boolean apply(DynamicContext context) {
     Map<String, Object> bindings = context.getBindings();
+    // 解析collectionExpression->iterable,核心用的ognl
     final Iterable<?> iterable = evaluator.evaluateIterable(collectionExpression, bindings,
         Optional.ofNullable(nullable).orElseGet(configuration::isNullableOnForEach));
     if (iterable == null || !iterable.iterator().hasNext()) {
       return true;
     }
     boolean first = true;
+    // 加上(
     applyOpen(context);
     int i = 0;
     for (Object o : iterable) {
@@ -91,7 +94,9 @@ public class ForEachSqlNode implements SqlNode {
         applyIndex(context, mapEntry.getKey(), uniqueNumber);
         applyItem(context, mapEntry.getValue(), uniqueNumber);
       } else {
+        // 索引
         applyIndex(context, i, uniqueNumber);
+        // 加上一个元素
         applyItem(context, o, uniqueNumber);
       }
       contents.apply(new FilteredDynamicContext(configuration, context, index, item, uniqueNumber));
@@ -101,6 +106,7 @@ public class ForEachSqlNode implements SqlNode {
       context = oldContext;
       i++;
     }
+    // 加上)
     applyClose(context);
     context.getBindings().remove(item);
     context.getBindings().remove(index);

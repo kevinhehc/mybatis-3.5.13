@@ -21,10 +21,14 @@ import java.lang.reflect.Method;
 /**
  * @author Clinton Begin
  */
+// 调用
 public class Invocation {
 
+  // 调用的对象
   private final Object target;
+  // 调用的方法
   private final Method method;
+  // 参数
   private final Object[] args;
 
   public Invocation(Object target, Method method, Object[] args) {
@@ -45,6 +49,7 @@ public class Invocation {
     return args;
   }
 
+  // 继续做下去
   public Object proceed() throws InvocationTargetException, IllegalAccessException {
     return method.invoke(target, args);
   }

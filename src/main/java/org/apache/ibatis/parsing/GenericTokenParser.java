@@ -18,10 +18,13 @@ package org.apache.ibatis.parsing;
 /**
  * @author Clinton Begin
  */
+// 普通记号解析器，处理#{}和${}参数
 public class GenericTokenParser {
 
+  // 有一个开始和结束记号
   private final String openToken;
   private final String closeToken;
+  // 记号处理器
   private final TokenHandler handler;
 
   public GenericTokenParser(String openToken, String closeToken, TokenHandler handler) {
@@ -43,7 +46,12 @@ public class GenericTokenParser {
     int offset = 0;
     final StringBuilder builder = new StringBuilder();
     StringBuilder expression = null;
+
+    // #{favouriteSection,jdbcType=VARCHAR}
+    // 这里是循环解析参数，参考GenericTokenParserTest,
+    // 比如可以解析${first_name} ${initial} ${last_name} reporting.这样的字符串,里面有3个 ${}
     do {
+      // 判断一下 ${ 前面是否是反斜杠
       if (start > 0 && src[start - 1] == '\\') {
         // this open token is escaped. remove the backslash and continue.
         builder.append(src, offset, start - offset - 1).append(openToken);
@@ -73,6 +81,7 @@ public class GenericTokenParser {
           builder.append(src, start, src.length - start);
           offset = src.length;
         } else {
+          // 得到一对大括号里的字符串后，调用handler.handleToken,比如替换变量这种功能
           builder.append(handler.handleToken(expression.toString()));
           offset = end + closeToken.length();
         }

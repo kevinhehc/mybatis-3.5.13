@@ -22,7 +22,7 @@ import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.parsing.XNode;
 import org.apache.ibatis.scripting.defaults.DefaultParameterHandler;
 import org.apache.ibatis.session.Configuration;
-
+// 脚本语言驱动
 public interface LanguageDriver {
 
   /**
@@ -41,6 +41,7 @@ public interface LanguageDriver {
    *
    * @see DefaultParameterHandler
    */
+  // 创建参数处理器
   ParameterHandler createParameterHandler(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql);
 
   /**
@@ -57,6 +58,7 @@ public interface LanguageDriver {
    *
    * @return the sql source
    */
+  // 创建SQL源码(mapper xml方式)
   SqlSource createSqlSource(Configuration configuration, XNode script, Class<?> parameterType);
 
   /**
@@ -73,6 +75,7 @@ public interface LanguageDriver {
    *
    * @return the sql source
    */
+  // 创建SQL源码(注解方式)
   SqlSource createSqlSource(Configuration configuration, String script, Class<?> parameterType);
 
 }

@@ -55,6 +55,7 @@ import org.apache.ibatis.logging.LogFactory;
  * @param <T>
  *          the generic type
  */
+// 找一个package下满足条件的所有类
 public class ResolverUtil<T> {
 
   /**
@@ -243,10 +244,12 @@ public class ResolverUtil<T> {
    *
    * @return the resolver util
    */
+  // 主要的方法，找一个package下满足条件的所有类,被TypeHanderRegistry,MapperRegistry,TypeAliasRegistry调用
   public ResolverUtil<T> find(Test test, String packageName) {
     String path = getPackagePath(packageName);
 
     try {
+      // 通过VFS来深入jar包里面去找一个class
       List<String> children = VFS.getInstance().list(path);
       for (String child : children) {
         if (child.endsWith(".class")) {

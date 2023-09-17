@@ -30,8 +30,10 @@ import java.util.Properties;
  *
  * @author Clinton Begin
  */
+// 通过类加载器获得resource的辅助类
 public class Resources {
 
+  // 大多数方法都是委托给ClassLoaderWrapper，再去做真正的事
   private static final ClassLoaderWrapper classLoaderWrapper = new ClassLoaderWrapper();
 
   /**

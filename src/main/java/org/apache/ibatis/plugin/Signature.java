@@ -27,6 +27,7 @@ import java.lang.annotation.Target;
  *
  * @author Clinton Begin
  */
+// 签名
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({})
@@ -36,6 +37,7 @@ public @interface Signature {
    *
    * @return the java type
    */
+  // 就是定义哪些类，方法，参数需要被拦截
   Class<?> type();
 
   /**

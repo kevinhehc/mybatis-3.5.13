@@ -21,13 +21,16 @@ import java.lang.reflect.Constructor;
  * @author Clinton Begin
  * @author Eduardo Macarron
  */
+// 日志工厂
 public final class LogFactory {
 
   /**
    * Marker to be used by logging implementations that support markers.
    */
+  // 给支持marker功能的logger使用(目前有slf4j, log4j2)
   public static final String MARKER = "MYBATIS";
 
+  // 具体究竟用哪个日志框架，那个框架所对应logger的构造函数
   private static Constructor<? extends Log> logConstructor;
 
   static {
@@ -39,22 +42,27 @@ public final class LogFactory {
     tryImplementation(LogFactory::useNoLogging);
   }
 
+  // 单例模式，不得自己new实例
   private LogFactory() {
     // disable construction
   }
 
+  // 根据传入的类来构建Log
   public static Log getLog(Class<?> clazz) {
     return getLog(clazz.getName());
   }
 
+  // 根据传入的类名来构建Log
   public static Log getLog(String logger) {
     try {
+      // 构造函数，参数必须是一个，为String型，指明logger的名称
       return logConstructor.newInstance(logger);
     } catch (Throwable t) {
       throw new LogException("Error creating logger for logger " + logger + ".  Cause: " + t, t);
     }
   }
 
+  // 提供一个扩展功能，如果以上log都不满意，可以使用自定义的log
   public static synchronized void useCustomLogging(Class<? extends Log> clazz) {
     setImplementation(clazz);
   }
@@ -94,6 +102,7 @@ public final class LogFactory {
   private static void tryImplementation(Runnable runnable) {
     if (logConstructor == null) {
       try {
+        // 这里调用的不是start,而是run！根本就没用多线程嘛！
         runnable.run();
       } catch (Throwable t) {
         // ignore
@@ -108,6 +117,7 @@ public final class LogFactory {
       if (log.isDebugEnabled()) {
         log.debug("Logging initialized using '" + implClass + "' adapter.");
       }
+      // 设置logConstructor,一旦设上，表明找到相应的log的jar包了，那后面别的log就不找了。
       logConstructor = candidate;
     } catch (Throwable t) {
       throw new LogException("Error setting Log implementation.  Cause: " + t, t);

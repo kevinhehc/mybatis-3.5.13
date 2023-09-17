@@ -23,8 +23,10 @@ import org.apache.ibatis.util.MapUtil;
 /**
  * @author Frank D. Martinez [mnesarco]
  */
+// 脚本语言注册器
 public class LanguageDriverRegistry {
 
+  // map
   private final Map<Class<? extends LanguageDriver>, LanguageDriver> LANGUAGE_DRIVER_MAP = new HashMap<>();
 
   private Class<? extends LanguageDriver> defaultDriverClass;
@@ -64,6 +66,7 @@ public class LanguageDriverRegistry {
     return defaultDriverClass;
   }
 
+  // Configuration()有调用，默认的为XMLLanguageDriver
   public void setDefaultDriverClass(Class<? extends LanguageDriver> defaultDriverClass) {
     register(defaultDriverClass);
     this.defaultDriverClass = defaultDriverClass;

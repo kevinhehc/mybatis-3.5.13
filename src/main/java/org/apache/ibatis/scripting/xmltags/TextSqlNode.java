@@ -25,6 +25,7 @@ import org.apache.ibatis.type.SimpleTypeRegistry;
 /**
  * @author Clinton Begin
  */
+// 文本SQL节点（CDATA|TEXT）
 public class TextSqlNode implements SqlNode {
   private final String text;
   private final Pattern injectionFilter;
@@ -38,6 +39,7 @@ public class TextSqlNode implements SqlNode {
     this.injectionFilter = injectionFilter;
   }
 
+  // 判断是否是动态sql
   public boolean isDynamic() {
     DynamicCheckerTokenParser checker = new DynamicCheckerTokenParser();
     GenericTokenParser parser = createParser(checker);
@@ -61,6 +63,7 @@ public class TextSqlNode implements SqlNode {
     private final DynamicContext context;
     private final Pattern injectionFilter;
 
+    // 绑定记号解析器
     public BindingTokenParser(DynamicContext context, Pattern injectionFilter) {
       this.context = context;
       this.injectionFilter = injectionFilter;
@@ -74,12 +77,14 @@ public class TextSqlNode implements SqlNode {
       } else if (SimpleTypeRegistry.isSimpleType(parameter.getClass())) {
         context.getBindings().put("value", parameter);
       }
+      // 从缓存里取得值
       Object value = OgnlCache.getValue(content, context.getBindings());
       String srtValue = value == null ? "" : String.valueOf(value); // issue #274 return "" instead of "null"
       checkInjection(srtValue);
       return srtValue;
     }
 
+    // 检查是否匹配正则表达式
     private void checkInjection(String value) {
       if (injectionFilter != null && !injectionFilter.matcher(value).matches()) {
         throw new ScriptingException("Invalid input. Please conform to regex" + injectionFilter.pattern());
@@ -87,6 +92,7 @@ public class TextSqlNode implements SqlNode {
     }
   }
 
+  // 动态SQL检查器
   private static class DynamicCheckerTokenParser implements TokenHandler {
 
     private boolean isDynamic;
@@ -101,6 +107,7 @@ public class TextSqlNode implements SqlNode {
 
     @Override
     public String handleToken(String content) {
+      // 灰常简单，设置isDynamic为true，即调用了这个类就必定是动态sql
       this.isDynamic = true;
       return null;
     }

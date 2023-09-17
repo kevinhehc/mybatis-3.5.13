@@ -35,6 +35,7 @@ import org.apache.ibatis.logging.LogFactory;
  *
  * @author Eduardo Macarron
  */
+// 厂商数据库Id提供者
 public class VendorDatabaseIdProvider implements DatabaseIdProvider {
 
   private Properties properties;
@@ -45,6 +46,7 @@ public class VendorDatabaseIdProvider implements DatabaseIdProvider {
       throw new NullPointerException("dataSource cannot be null");
     }
     try {
+      // 根据dataSource得到数据库名字
       return getDatabaseName(dataSource);
     } catch (Exception e) {
       LogHolder.log.error("Could not get a databaseId from dataSource", e);
@@ -58,8 +60,10 @@ public class VendorDatabaseIdProvider implements DatabaseIdProvider {
   }
 
   private String getDatabaseName(DataSource dataSource) throws SQLException {
+    // 先得到productName
     String productName = getDatabaseProductName(dataSource);
     if (this.properties != null) {
+      // 如果设置了缩写properties，则一个个比较返回匹配的缩写
       for (Map.Entry<Object, Object> property : properties.entrySet()) {
         if (productName.contains((String) property.getKey())) {
           return (String) property.getValue();
@@ -73,6 +77,7 @@ public class VendorDatabaseIdProvider implements DatabaseIdProvider {
 
   private String getDatabaseProductName(DataSource dataSource) throws SQLException {
     try (Connection con = dataSource.getConnection()) {
+      // 核心就是DatabaseMetaData.getDatabaseProductName()得到数据库产品名字
       DatabaseMetaData metaData = con.getMetaData();
       return metaData.getDatabaseProductName();
     }

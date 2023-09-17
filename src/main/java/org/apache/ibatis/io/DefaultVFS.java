@@ -42,6 +42,7 @@ import org.apache.ibatis.logging.LogFactory;
  *
  * @author Ben Gunter
  */
+// 默认的VFS，提供了读取jar包的方法
 public class DefaultVFS extends VFS {
   private static final Log log = LogFactory.getLog(DefaultVFS.class);
 

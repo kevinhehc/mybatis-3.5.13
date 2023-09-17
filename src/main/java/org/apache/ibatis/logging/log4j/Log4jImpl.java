@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
  *
  * @deprecated Since 3.5.9 - See https://github.com/mybatis/mybatis-3/issues/1223. This class will remove future.
  */
+// 用的log4j里的Logger
 @Deprecated
 public class Log4jImpl implements Log {
 

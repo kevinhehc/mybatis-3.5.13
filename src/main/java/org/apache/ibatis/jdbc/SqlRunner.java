@@ -231,11 +231,13 @@ public class SqlRunner {
     }
   }
 
+  // 取得结果
   private List<Map<String, Object>> getResults(ResultSet rs) throws SQLException {
     List<Map<String, Object>> list = new ArrayList<>();
     List<String> columns = new ArrayList<>();
     List<TypeHandler<?>> typeHandlers = new ArrayList<>();
     ResultSetMetaData rsmd = rs.getMetaData();
+    // 先计算要哪些列，已经列的类型（TypeHandler）
     for (int i = 0, n = rsmd.getColumnCount(); i < n; i++) {
       columns.add(rsmd.getColumnLabel(i + 1));
       try {
@@ -254,6 +256,8 @@ public class SqlRunner {
       for (int i = 0, n = columns.size(); i < n; i++) {
         String name = columns.get(i);
         TypeHandler<?> handler = typeHandlers.get(i);
+        // 巧妙的利用TypeHandler来取得结果
+        // hhc
         row.put(name.toUpperCase(Locale.ENGLISH), handler.getResult(rs, name));
       }
       list.add(row);

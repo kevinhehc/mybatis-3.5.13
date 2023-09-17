@@ -34,6 +34,8 @@ import org.apache.ibatis.session.Configuration;
 /**
  * @author Clinton Begin
  */
+// 结果映射
+// MyBatis 中最重要最强大的元素
 public class ResultMap {
   private Configuration configuration;
 
@@ -53,6 +55,7 @@ public class ResultMap {
   private ResultMap() {
   }
 
+  // 静态内部类，建造者模式
   public static class Builder {
     private static final Log log = LogFactory.getLog(Builder.class);
 

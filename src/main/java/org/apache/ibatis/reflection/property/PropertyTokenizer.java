@@ -20,22 +20,29 @@ import java.util.Iterator;
 /**
  * @author Clinton Begin
  */
+// 属性分解为标记，迭代子模式
+// 如person[0].birthdate.year，将依次取得person[0], birthdate, year
 public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
-  private String name;
-  private final String indexedName;
-  private String index;
-  private final String children;
+  // 例子： person[0].birthdate.year
+  private String name; //person
+  private final String indexedName; //person[0]
+  private String index; //0
+  private final String children;  //birthdate.year
 
   public PropertyTokenizer(String fullname) {
+    // person[0].birthdate.year
+    // 找.
     int delim = fullname.indexOf('.');
     if (delim > -1) {
       name = fullname.substring(0, delim);
       children = fullname.substring(delim + 1);
     } else {
+      // 找不到.的话，取全部部分
       name = fullname;
       children = null;
     }
     indexedName = name;
+    // 把中括号里的数字给解析出来
     delim = name.indexOf('[');
     if (delim > -1) {
       index = name.substring(delim + 1, name.length() - 1);
@@ -64,6 +71,7 @@ public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
     return children != null;
   }
 
+  // 取得下一个,非常简单，直接再通过儿子来new另外一个实例
   @Override
   public PropertyTokenizer next() {
     return new PropertyTokenizer(children);

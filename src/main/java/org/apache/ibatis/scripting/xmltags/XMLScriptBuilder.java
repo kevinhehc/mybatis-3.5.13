@@ -32,6 +32,7 @@ import org.w3c.dom.NodeList;
 /**
  * @author Clinton Begin
  */
+// XML脚本构建器
 public class XMLScriptBuilder extends BaseBuilder {
 
   private final XNode context;

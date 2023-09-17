@@ -23,6 +23,7 @@ import java.util.Properties;
  *
  * @author Clinton Begin
  */
+// 对象工厂，所有对象都要由工厂来产生
 public interface ObjectFactory {
 
   /**
@@ -31,6 +32,7 @@ public interface ObjectFactory {
    * @param properties
    *          configuration properties
    */
+  // 设置属性
   default void setProperties(Properties properties) {
     // NOP
   }
@@ -45,6 +47,7 @@ public interface ObjectFactory {
    *
    * @return the t
    */
+  // 生产对象
   <T> T create(Class<T> type);
 
   /**
@@ -61,6 +64,7 @@ public interface ObjectFactory {
    *
    * @return the t
    */
+  // 生产对象，使用指定的构造函数和构造函数参数
   <T> T create(Class<T> type, List<Class<?>> constructorArgTypes, List<Object> constructorArgs);
 
   /**

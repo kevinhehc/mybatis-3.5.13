@@ -30,15 +30,20 @@ import org.w3c.dom.NodeList;
 /**
  * @author Clinton Begin
  */
+// 对org.w3c.dom.Node的包装
 public class XNode {
 
+  // org.w3c.dom.Node
   private final Node node;
+  // 以下都是预先把信息都解析好，放到map等数据结构中（内存中）
   private final String name;
   private final String body;
   private final Properties attributes;
   private final Properties variables;
+  // XPathParser方便xpath解析
   private final XPathParser xpathParser;
 
+  // 在构造时就把一些信息（属性，body）全部解析好，以便我们直接通过getter函数取得
   public XNode(XPathParser xpathParser, Node node, Properties variables) {
     this.xpathParser = xpathParser;
     this.node = node;
@@ -53,6 +58,7 @@ public class XNode {
   }
 
   public XNode getParent() {
+    // 调用Node.getParentNode,如果取到，包装一下，返回XNode
     Node parent = node.getParentNode();
     if (!(parent instanceof Element)) {
       return null;
@@ -60,7 +66,9 @@ public class XNode {
     return new XNode(xpathParser, parent, variables);
   }
 
+  // 取得完全的path (a/b/c)
   public String getPath() {
+    // 循环依次取得节点的父节点，然后倒序打印,也可以用一个堆栈实现
     StringBuilder builder = new StringBuilder();
     Node current = node;
     while (current instanceof Element) {
@@ -73,6 +81,16 @@ public class XNode {
     return builder.toString();
   }
 
+  //取得标示符   ("resultMap[authorResult]")
+  //XMLMapperBuilder.resultMapElement调用
+
+  //	<resultMap id="authorResult" type="Author">
+  //	  <id property="id" column="author_id"/>
+  //	  <result property="username" column="author_username"/>
+  //	  <result property="password" column="author_password"/>
+  //	  <result property="email" column="author_email"/>
+  //	  <result property="bio" column="author_bio"/>
+  //	</resultMap>
   public String getValueBasedIdentifier() {
     StringBuilder builder = new StringBuilder();
     XNode current = this;
@@ -80,6 +98,7 @@ public class XNode {
       if (current != this) {
         builder.insert(0, "_");
       }
+      // 先拿id，拿不到再拿value,再拿不到拿property
       String value = current.getStringAttribute("id",
           current.getStringAttribute("value", current.getStringAttribute("property", (String) null)));
       if (value != null) {
@@ -94,6 +113,7 @@ public class XNode {
     return builder.toString();
   }
 
+  // 以下方法都是把XPathParser的方法再重复一遍
   public String evalString(String expression) {
     return xpathParser.evalString(node, expression);
   }
@@ -122,6 +142,7 @@ public class XNode {
     return name;
   }
 
+  // 以下是一些getBody的方法
   public String getStringBody() {
     return getStringBody(null);
   }
@@ -170,6 +191,7 @@ public class XNode {
     return body == null ? def : Float.valueOf(body);
   }
 
+  // 以下是一些getAttribute的方法
   public <T extends Enum<T>> T getEnumAttribute(Class<T> enumType, String name) {
     return getEnumAttribute(enumType, name, null);
   }
@@ -252,6 +274,7 @@ public class XNode {
     return value == null ? def : Float.valueOf(value);
   }
 
+  // 得到孩子，原理是调用Node.getChildNodes
   public List<XNode> getChildren() {
     List<XNode> children = new ArrayList<>();
     NodeList nodeList = node.getChildNodes();
@@ -266,6 +289,7 @@ public class XNode {
     return children;
   }
 
+  // 得到孩子，返回Properties，孩子的格式肯定都有name,value属性
   public Properties getChildrenAsProperties() {
     Properties properties = new Properties();
     for (XNode child : getChildren()) {
@@ -325,6 +349,7 @@ public class XNode {
     }
   }
 
+  // 以下2个方法在构造时就解析
   private Properties parseAttributes(Node n) {
     Properties attributes = new Properties();
     NamedNodeMap attributeNodes = n.getAttributes();
@@ -339,6 +364,7 @@ public class XNode {
   }
 
   private String parseBody(Node node) {
+    // 取不到body，循环取孩子的body，只要取到第一个，立即返回
     String data = getBodyData(node);
     if (data == null) {
       NodeList children = node.getChildNodes();
